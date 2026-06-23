@@ -1,8 +1,11 @@
-import requests
+from fastapi.testclient import TestClient
 
-url = "https://validator-agent-204792553419.us-central1.run.app/validate"
-payload = {"code": "print('hello world')"}
-resp = requests.post(url, json=payload)
+from validation_agent import app
 
-print("Status:", resp.status_code)
-print("Raw text:", resp.text)
+
+def test_validator_accepts_simple_code() -> None:
+    client = TestClient(app)
+    response = client.post("/validate", json={"code": "print('hello world')"})
+
+    assert response.status_code == 200
+    assert response.json()["risk_level"] == "low"
